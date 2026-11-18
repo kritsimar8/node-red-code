@@ -1,0 +1,304 @@
+// this is a first function for converting volt to ampere and to respective values 
+
+
+let testing = msg.payload.A1;
+let testing2 = msg.payload.A2;
+let testing3 = msg.payload.A3;
+let testing4 = msg.payload.A4;
+let testing5 = msg.payload.A5;
+
+
+testing = testing/ 800;
+testing2 = testing2/ 800;
+testing3 = testing3/ 800;
+testing4 = testing4/ 800;
+// testing5 = testing5/ 200;
+
+testing = (testing/ 4095) * 5.044;
+testing2 = (testing2/ 4095) * 5.044;
+testing3 = (testing3/ 4095) * 5.044;
+testing4 = (testing4/ 4095) * 5.044;
+// testing5 = (testing5/ 4095) * 5.044;
+
+
+
+
+if (testing <.870){
+    testing = 0;
+}else{
+testing = testing -0.870;
+}
+if (testing >= 3.463){
+    testing = 3.463;
+}
+
+if (testing2 <.870){
+    testing2 = 0;
+}else{
+testing2 = testing2 -0.870;
+}
+if (testing2 >= 3.463){
+    testing2= 3.463;
+}
+if (testing3 <.870){
+    testing3 = 0;
+}else{
+testing3 = testing3 -0.870;
+}
+if (testing3 >= 3.463){
+    testing3 = 3.463;
+}
+
+if (testing4 <.870){
+    testing4 = 0;
+}else{
+testing4 = testing4 -0.870;
+}
+if(testing4 >= 3.463){
+    testing4 = 3.463;
+}
+
+
+
+testing = 3.463/testing;
+testing2 = 3.463/testing2;
+testing3 = 3.463/testing3;
+testing4 = 3.463/testing4;
+// testing5 = 3.450/testing5;
+
+
+
+
+
+
+testing = 16 / testing;
+testing2 = 16 / testing2;
+testing3 = 16 / testing3;
+testing4 = 16 / testing4;
+// testing5 = 16 / testing5;
+
+
+
+testing = testing + 4;
+testing2 = testing2 + 4;
+testing3 = testing3 + 4;
+testing4 = testing4 + 4;
+// testing5 = testing5 + 4;
+
+
+
+
+
+
+
+testing = fixingError(testing);
+testing2 = fixingError(testing2);
+testing3 = fixingError(testing3);
+testing4 = fixingError(testing4);
+
+testing = AmpereVal(testing);
+testing2 = PressureVal(testing2);
+testing3 = TemperatureVal(testing3);
+testing4 = TemperatureVal(testing4);
+
+testing = parseFloat(testing.toFixed(2));
+testing2 = parseFloat(testing2.toFixed(2));
+testing3 = parseFloat(testing3.toFixed(2));
+testing4 = parseFloat(testing4.toFixed(2));
+
+
+
+msg.payload.A1 = testing; 
+msg.payload.A2 = testing2; 
+msg.payload.A3 = testing3; 
+msg.payload.A4 = testing4; 
+// msg.payload.A5 = testing5; 
+
+
+
+
+
+
+return msg;
+
+
+
+function fixingError(value) {
+    if (value >= 4.00 && value < 5.00) {
+        return value - 0.02;
+    }
+    if (value >= 5.00 && value < 8.00) {
+        return value - 0.03;
+    }
+    if (value >= 8.00 && value < 10.00) {
+        return value - 0.04;
+    }
+    if (value >= 10.00 && value < 13.00) {
+        return value - 0.06;
+    }
+    if (value >= 13.00 && value < 17.00) {
+        return value - 0.05;
+    }
+    if (value >= 17.00 && value < 19.00) {
+        return value - 0.04;
+    }
+    if (value >= 19.00 && value < 21.00) {
+        return value - 0.02;
+    }
+}
+
+
+function AmpereVal ( value){
+    let val ; 
+    value = value-4.00;
+    val = 16 / value;
+    val = 5/val; 
+    val = val * 6; 
+    return val;
+}
+
+function PressureVal ( value){
+    let val; 
+    value = value-4.00;
+    val = 16 / value;
+    val = 60/ val;
+    val = val * 14.504;
+    return val; 
+}
+
+function TemperatureVal (value){
+    let val; 
+    value = value-4.00;
+    val = 16/ value; 
+    val = 150 / val;
+    return val; 
+
+}
+
+
+
+// THIS IS A SECOND FUNCTION FOR AUTOPILOT MODE 
+
+
+let UpperAmp = flow.get("AmpUpperVal") ?? '0';
+let LowerAmp = flow.get("AmpLowerVal") ?? '0';
+let UpperSP = flow.get("SPUpperVal") ?? '0';
+let LowerSP = flow.get("SPLowerVal") ?? '0';
+let UpperST = flow.get("STUpperVal") ?? '0';
+let LowerST = flow.get("STLowerVal") ?? '0';
+let count = 0;
+let myRelay = flow.get("Relay");
+
+let Sensor1 =parseInt(msg.payload.A1) ;
+let Sensor2 = parseInt(msg.payload.A2);
+let Sensor3 = parseInt(msg.payload.A3);
+let Sensor4 = parseInt(msg.payload.A4);
+let Sensor5 = parseInt(msg.payload.A5);
+
+
+LowerAmp = parseInt(LowerAmp);
+UpperAmp = parseInt(UpperAmp);
+LowerSP = parseInt(LowerSP);
+UpperST = parseInt(UpperST);
+LowerST = parseInt(LowerST);
+UpperSP = parseInt(UpperSP);
+
+
+let AutopilotState = flow.get("Autopilot") ?? false;
+
+
+
+if (AutopilotState == true) {
+    if (Sensor1 < UpperAmp && Sensor1 > LowerAmp) {
+       count= count + 1;
+    }
+    if (Sensor2 < UpperSP && Sensor2 > LowerSP) {
+       count= count + 1;
+    }
+    if (Sensor3 < UpperST && Sensor3 > LowerST) {
+       count= count + 1;
+    }
+}
+
+if (AutopilotState == true && count == 3 && myRelay == 0) {
+    myRelay = 1;
+    flow.set("Relay",1);
+     msg.payload = {
+        "A1": myRelay,
+        
+    }
+    return msg;
+  
+}
+if (AutopilotState == true && count < 3 && myRelay ==1 ) {
+    myRelay = 0;
+     flow.set("Relay",0);
+     msg.payload = {
+        "A1": myRelay,
+        
+    }
+
+    flow.set("Autopilot",false);
+    return msg;
+   
+}
+
+
+
+    return null;
+
+
+
+
+// THIS IS A THIRD FUNCTION FOR GAS OUT ALGORITHM 
+
+
+
+var GasState = flow.get("GasOut") ?? false;
+var WeightQt = flow.get("WeightOut") ?? '0';
+var CylinderWeight = msg.payload.A5;
+var CylinderInitialWt = flow.get("InitialWeight") ;
+let myRelay = flow.get("Relay");
+
+
+
+WeightQt = parseFloat(WeightQt);
+CylinderWeight = parseFloat(CylinderWeight);
+CylinderInitialWt = parseFloat(CylinderInitialWt);
+
+
+
+
+
+
+if (GasState == true && WeightQt > 0) {
+   if ((CylinderInitialWt - WeightQt) < CylinderWeight && myRelay == 0) {
+
+      flow.set("Relay", 1);
+      msg.payload = {
+         "A1": 1,
+         "WeightQt": WeightQt,
+         "CylinderWeight": CylinderWeight,
+         "CylinderInitialWt": CylinderInitialWt
+      }
+      return msg;
+   }
+   if ((CylinderInitialWt - WeightQt) >= CylinderWeight && myRelay == 1) {
+      flow.set("Relay", 0);
+      flow.set("GasOut",false);
+      msg.payload = {
+         "A1": 0,
+         "WeightQt": WeightQt,
+         "CylinderWeight": CylinderWeight,
+         "CylinderInitialWt": CylinderInitialWt
+
+      }
+      return msg;
+   }
+
+
+}
+// msg.payload = {
+//    "Relay" : myRelay
+// }
+return null; 
